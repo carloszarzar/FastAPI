@@ -1,0 +1,30 @@
+# Ambiente virtual
+.venv/
+env/
+venv/
+
+# Cache e arquivos temporários
+__pycache__/
+*.py[cod]
+*.pyo
+*.log
+
+# IDEs
+.vscode/
+.idea/
+
+# Testes
+.pytest_cache/
+.coverage
+htmlcov/
+.cache/
+
+# Arquivos de ambiente
+.env
+
+# Banco de dados local (se existir)
+*.sqlite3
+
+# Sistema
+.DS_Store
+Thumbs.db
