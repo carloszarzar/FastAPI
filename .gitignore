@@ -24,6 +24,7 @@ htmlcov/
 
 # Banco de dados local (se existir)
 *.sqlite3
+test.db
 
 # Sistema
 .DS_Store
