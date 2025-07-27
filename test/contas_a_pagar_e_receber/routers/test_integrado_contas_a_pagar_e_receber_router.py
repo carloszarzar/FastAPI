@@ -40,6 +40,24 @@ def test_deve_listar_contas_a_pagar_e_receber():
         {'id': 2, 'descricao': 'Salário', 'valor': 5000.0, 'tipo': 'RECEBER'}
     ]
 
+def test_deve_pegar_por_id():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    response_get = client.post("/contas-a-pagar-e-receber", json={
+        "descricao": "Curso de Python",
+        "valor": 333,
+        "tipo": "PAGAR"
+    })
+
+    id_da_conta_a_pagar_e_receber = response_get.json()['id']
+
+    response_get = client.get(f"/contas-a-pagar-e-receber/{id_da_conta_a_pagar_e_receber}")
+
+    assert response_get.status_code == 200
+    assert response_get.json()['valor'] == 333.0
+    assert response_get.json()['tipo'] == "PAGAR"
+    assert response_get.json()['descricao'] == "Curso de Python"
 
 #--- teste api criar conta (post) ---#
 def test_deve_criar_conta_a_pagar_e_receber():
@@ -61,6 +79,43 @@ def test_deve_criar_conta_a_pagar_e_receber():
         "valor": 299.90,
         "tipo": "PAGAR"
     }
+
+# Método TDD - Test Drive Development
+def test_deve_atualizar_conta_a_pagar_e_receber():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    response = client.post("/contas-a-pagar-e-receber/", json={
+        "descricao": "Curso de Python",
+        "valor": 333,
+        "tipo": "PAGAR"
+    })
+    id_da_conta_a_pagar_e_receber = response.json()['id']
+
+    response_put = client.put(f"/contas-a-pagar-e-receber/{id_da_conta_a_pagar_e_receber}", json={
+        "descricao": "Curso de Python",
+        "valor": 111,
+        "tipo": "PAGAR"
+    })
+    assert response_put.status_code == 200 
+    assert response_put.json()['valor'] == 111
+
+def test_deve_remover_conta_a_pagar_e_receber():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    response = client.post("/contas-a-pagar-e-receber/", json={
+        "descricao": "Curso de Python",
+        "valor": 333,
+        "tipo": "PAGAR"
+    })
+    id_da_conta_a_pagar_e_receber = response.json()['id']
+
+    response_put = client.delete(f"/contas-a-pagar-e-receber/{id_da_conta_a_pagar_e_receber}")
+    assert response_put.status_code == 204 
+#-------------------------------------------------------
+
+    
 
 def teste_deve_retornar_erro_quando_exceder_a_descricao():
     response = client.post("/contas-a-pagar-e-receber/", json={
@@ -105,3 +160,10 @@ def teste_deve_retornar_erro_quando_o_tipo_for_invalido():
     })
     assert response.status_code == 422
     assert response.json()['detail'][0]['loc'] == ['body','tipo']
+
+
+
+
+
+    #------- Rodar no terminal para fazer o teste ----#
+    # python -m pytest ./test/contas_a_pagar_e_receber/routers/test_integrado_contas_a_pagar_e_receber_router.py
