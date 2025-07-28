@@ -7,9 +7,16 @@ from dotenv import load_dotenv
 
 # Carrega variáveis do .env
 load_dotenv()
+# Monta a URL de conexão a partir das variáveis do .env
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = os.getenv("DB_PORT")
+DB_NAME = os.getenv("DB_NAME")
 
 # Conexão com o banco via variável de ambiente
-DATABASE_URL = os.getenv("DATABASE_URL")
+# DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 # Conecta ao banco
 engine = create_engine(DATABASE_URL)
