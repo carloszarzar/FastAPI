@@ -14,6 +14,7 @@ from enum import Enum
 # Importanto os módulos e dependencias criadas no projeto
 from contas_a_pagar_e_receber.models.conta_a_pagar_e_receber_model import ContaPagarReceber
 from shared.dependencies import get_db
+from shared.exceptions import NotFound
 
 # Cria um "roteador" que agrupa todas as rotas (módulos) com o prefixo /contas-a-pagar-e-receber.
 router = APIRouter(prefix="/contas-a-pagar-e-receber")
@@ -43,13 +44,14 @@ class ContaPagarReceberRequest(BaseModel):
 @router.get("/", response_model=List[ContaPagarReceberResponse]) # Essa rota responde ao método GET em /contas-a-pagar-e-receber/.
 def listar_contas(db: Session = Depends(get_db)) -> List[ContaPagarReceberResponse]: # Retorna uma lista de objetos no formato ContaPagarReceberResponse.
     return db.query(ContaPagarReceber).all() # Busca todos os registros da tabela ContaPagarReceber.
-
+#---------------------------------------------
 @router.get("/{id_da_conta_a_pagar_e_receber}", response_model=ContaPagarReceberResponse) # Essa rota responde ao método GET em /contas-a-pagar-e-receber/.
-def listar_contas(id_da_conta_a_pagar_e_receber: int,
+def obter_conta_por_id(id_da_conta_a_pagar_e_receber: int,
                   db: Session = Depends(get_db)) -> List[ContaPagarReceberResponse]: # Retorna uma lista de objetos no formato ContaPagarReceberResponse.
-    conta_a_pagar_e_receber: ContaPagarReceber = db.get(ContaPagarReceber, id_da_conta_a_pagar_e_receber) # Busca todos os registros da tabela ContaPagarReceber.
-    return conta_a_pagar_e_receber
-
+    #conta_a_pagar_e_receber: ContaPagarReceber = db.get(ContaPagarReceber, id_da_conta_a_pagar_e_receber) # Busca todos os registros da tabela ContaPagarReceber.
+        
+    return busca_conta_por_id(id_da_conta_a_pagar_e_receber, db)
+#---------------------------------------------
 # POST – Criar uma nova conta
 @router.post("/", response_model=ContaPagarReceberResponse, status_code=201) # Essa rota responde ao método POST em /contas-a-pagar-e-receber/.
 def criar_conta(conta_a_pagar_e_receber_request: ContaPagarReceberRequest, db: Session = Depends(get_db)) -> ContaPagarReceberResponse:
@@ -61,13 +63,6 @@ def criar_conta(conta_a_pagar_e_receber_request: ContaPagarReceberRequest, db: S
     db.add(contas_a_pagar_e_receber)
     db.commit()
     db.refresh(contas_a_pagar_e_receber)
-    #return ContaPagarReceberResponse(
-        # id=3,
-        # descricao=conta_a_pagar_e_receber_request.descricao,
-        # valor=conta_a_pagar_e_receber_request.valor,
-        # tipo=conta_a_pagar_e_receber_request.tipo
-    #    **contas_a_pagar_e_receber.__dict__
-    #)
     return contas_a_pagar_e_receber
 
 # PUT – Inserir dados no banco de dados
@@ -75,7 +70,8 @@ def criar_conta(conta_a_pagar_e_receber_request: ContaPagarReceberRequest, db: S
 def atualizar_conta(id_da_conta_a_pagar_e_receber: int,
                 conta_a_pagar_e_receber_request: ContaPagarReceberRequest,
                 db: Session = Depends(get_db)) -> ContaPagarReceberResponse:
-    conta_a_pagar_e_receber: ContaPagarReceber = db.get(ContaPagarReceber, id_da_conta_a_pagar_e_receber)
+    #conta_a_pagar_e_receber: ContaPagarReceber = db.get(ContaPagarReceber, id_da_conta_a_pagar_e_receber)
+    conta_a_pagar_e_receber = busca_conta_por_id(id_da_conta_a_pagar_e_receber, db)
     conta_a_pagar_e_receber.tipo = conta_a_pagar_e_receber_request.tipo
     conta_a_pagar_e_receber.valor = conta_a_pagar_e_receber_request.valor
     conta_a_pagar_e_receber.descricao = conta_a_pagar_e_receber_request.descricao
@@ -87,8 +83,26 @@ def atualizar_conta(id_da_conta_a_pagar_e_receber: int,
 @router.delete("/{id_da_conta_a_pagar_e_receber}",status_code=204)
 def excluir_conta(id_da_conta_a_pagar_e_receber: int,
                 db: Session = Depends(get_db)) -> None:
-    conta_a_pagar_e_receber = db.get(ContaPagarReceber, id_da_conta_a_pagar_e_receber)
-    if conta_a_pagar_e_receber is None:
-        raise HTTPException(status_code=404, detail="Conta não encontrada")
+    
+    
+    #if conta_a_pagar_e_receber is None:
+    #    raise HTTPException(status_code=404, detail="Conta não encontrada")
+    
+    conta_a_pagar_e_receber = busca_conta_por_id(id_da_conta_a_pagar_e_receber, db)
+
     db.delete(conta_a_pagar_e_receber)
     db.commit()
+
+
+
+#---------------------------------------------
+def busca_conta_por_id(id_da_conta_a_pagar_e_receber: int, db: Session) -> ContaPagarReceber:
+    conta_a_pagar_e_receber = db.get(ContaPagarReceber, id_da_conta_a_pagar_e_receber)
+
+
+    if conta_a_pagar_e_receber is None:
+        raise NotFound("conta_a_pagar_e_receber")
+    
+    return conta_a_pagar_e_receber
+
+
