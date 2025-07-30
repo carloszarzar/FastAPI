@@ -1,13 +1,27 @@
 from logging.config import fileConfig
+import os
+from dotenv import load_dotenv  # <-- NOVO
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import engine_from_config, pool
 
 from alembic import context
+
+# Carrega variáveis do arquivo .env
+load_dotenv()  # <-- NOVO
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
+# Carrega DATABASE_URL do .env
+database_url = os.getenv("DATABASE_URL")  # <-- NOVO
+
+if not database_url:
+    raise Exception("A variável de ambiente DATABASE_URL não está definida no .env.")
+
+# Sobrescreve sqlalchemy.url do alembic.ini com DATABASE_URL
+config.set_main_option("sqlalchemy.url", database_url)  # <-- NOVO
+
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -17,6 +31,7 @@ if config.config_file_name is not None:
 # add your model's MetaData object here
 # for 'autogenerate' support
 from contas_a_pagar_e_receber.models.conta_a_pagar_e_receber_model import ContaPagarReceber
+from contas_a_pagar_e_receber.models.fornecedor_cliente_model import FornecedorCliente
 from shared.database import Base
 # target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata

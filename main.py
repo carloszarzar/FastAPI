@@ -5,6 +5,7 @@ from fastapi import FastAPI
 
 # Importa o arquivo de rotas da parte de "contas a pagar e receber"
 from contas_a_pagar_e_receber.routers import contas_a_pagar_e_receber_router
+from contas_a_pagar_e_receber.routers import fornecedor_cliente_router
 from shared.exceptions import NotFound
 from shared.exceptions_handler import not_found_exception_handler 
 
@@ -16,6 +17,7 @@ def oi_eu_sou_programador() -> str:
     return "Oi, eu sou programador"
 # Aqui a gente "inclui" as rotas que estão no arquivo contas_a_pagar_e_receber_router.py
 app.include_router(contas_a_pagar_e_receber_router.router) # Adiciona rotas (módulos) de outros arquivos. Indica o controlador de funções (métodos)
+app.include_router(fornecedor_cliente_router.router)
 app.add_exception_handler(NotFound, not_found_exception_handler)
 
 # Rodando o servidor com Uvicorn
