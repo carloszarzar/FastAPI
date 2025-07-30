@@ -39,6 +39,7 @@ class ContaPagarReceberRequest(BaseModel):
     descricao: str = Field(min_length=3, max_length=30)
     valor: float = Field(gt=0)
     tipo: ContaPagarReceberTipoEnum = Field() # PAGAR, RECEBER
+    fornecedor_cliente_id: int | None = None
 
 # GET – Listar contas, 
 @router.get("/", response_model=List[ContaPagarReceberResponse]) # Essa rota responde ao método GET em /contas-a-pagar-e-receber/.
